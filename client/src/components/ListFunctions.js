@@ -6,10 +6,10 @@ export const getList = () => {
             headers: { 'Content-type': 'application/json' }
         })
         .then(res => {
-            let data = []
+            var data = []
             Object.keys(res.data).forEach(function (key) {
-                let val = res.data[key]
-                data.push([val.title, val.id])
+                var val = res.data[key]
+                data.push([val.title, val._id])
             })
 
             return data
