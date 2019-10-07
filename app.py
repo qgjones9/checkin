@@ -2,8 +2,6 @@ from flask import Flask, jsonify, request
 from flask_pymongo import PyMongo
 from bson.objectid import ObjectId
 from flask_cors import CORS
-from dotenv import load_dotenv
-load_dotenv()
 
 app = Flask(__name__)
 
