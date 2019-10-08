@@ -1,0 +1,37 @@
+.App {
+    text-align: center;
+}
+
+nav {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    min-height: 10vh;
+    background: rgb(73, 79, 82);
+    color: white;
+
+}
+
+.nav-links {
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style: none;
+}
+
+.parent {
+    display: inline-block;
+    text-align: left;
+    width: 200px;
+    height: 100px;
+    margin: 1em;
+    margin-bottom: 2em;
+}
+
+.parent-title {
+    color: black;
+    width: 400px;
+}
+
+
