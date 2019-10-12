@@ -84,7 +84,7 @@ export default class Profile extends Component {
                           <tbody>
                           {this.populateTableWithChildren()}
                           </tbody>
-                        </Table>
+                    </Table>
                 </div>
             </div>
         );
