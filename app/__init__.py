@@ -14,5 +14,5 @@ logging.basicConfig(level=logging.DEBUG)
 # Create a custom logger
 logger = logging.getLogger(__name__)
 
-from app import routes, models
+from app import user_routes, teacher_routes, children_routes, models
 
