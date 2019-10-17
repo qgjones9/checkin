@@ -1,5 +1,5 @@
 from flask import jsonify
-from app import db, logger
+from app import db, logger, app
 from werkzeug.security import generate_password_hash, check_password_hash
 
 # rm -rf app.db migrations && flask db init && flask db migrate -m "populating table" && flask db upgrade
@@ -16,7 +16,7 @@ class User(db.Model):
     password_hash = db.Column(db.String(128))
     faculty = db.Column(db.Boolean, nullable=False)
     admin = db.Column(db.Boolean, nullable=False)
-    children = db.relationship('Child', backref='parent', lazy=True)
+    child_id = db.Column(db.Integer, db.ForeignKey('child.id'))
 
     def __init__(self, username, email, password, faculty=False, admin=False):
         self.username = username
@@ -25,8 +25,7 @@ class User(db.Model):
         self.faculty = faculty
         self.admin = admin
 
-        logger.info(password)
-
+        # create a secure password upon class instantiation
         self.set_password()
 
     def describe(self):
@@ -44,7 +43,6 @@ class User(db.Model):
         return f'username: {self.username}'
 
     def set_password(self):
-        logger.info(f'{self.password_hash}')
         self.password_hash = generate_password_hash(self.password_hash)
 
     def check_password(self, password):
@@ -54,8 +52,9 @@ class User(db.Model):
 class Child(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(64), index=True, unique=True, nullable=False)
-    last_name = db.Column(db.String(64), index=True, unique=True, nullable=False)
-    parent_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    last_name = db.Column(db.String(64), index=True, nullable=False)
+    parent = db.relationship('User', backref='parent', lazy='select')
+    grade_level = db.Column(db.String(2), db.ForeignKey("teacher.grade_level"))
 
     def __repr__(self):
         return f"Child: '{self.first_name} {self.last_name}'"
@@ -72,11 +71,11 @@ class Teacher(db.Model):
     """
     grade_level = db.Column(db.String(2), primary_key=True)
     teacher_id = db.Column(db.Integer)
+    teacher = db.relationship('Child', backref='child', lazy='select')
 
     def __init__(self, grade_level, id):
 
         teacher = User.query.get(id)
-        print(teacher)
 
         self.grade_level = grade_level
         self.teacher_id = teacher.username
@@ -87,3 +86,32 @@ class Teacher(db.Model):
             "teacher_id": self.teacher_id
         }
         return data
+
+
+@app.cli.command("bootstrap")
+def bootstrap_data():
+    """
+    populates database with data
+    """
+    db.drop_all()
+    db.create_all()
+
+    spencer = User(username="spencer", email="spencer@gmail.com", password="sdfasdfsadf", faculty=True, admin=True)
+    henderson = User(username="henderson", email="henderson@gmail.com", password="sdfasdfsadf", faculty=True, admin=True)
+    db.session.add(spencer)
+    db.session.add(henderson)
+    db.session.commit()
+
+    gresyson = Child(first_name="greyson", last_name="jones")
+    addison = Child(first_name="addison", last_name="jones")
+    k5 = Teacher(grade_level="k4", id=1)
+    db.session.add(gresyson)
+    db.session.add(k5)
+    db.session.commit()
+
+    gresyson.parent.append(spencer)
+    gresyson.parent.append(henderson)
+    addison.parent.append(henderson)
+
+    db.session.commit()
+
